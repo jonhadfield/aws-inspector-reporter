@@ -43,22 +43,49 @@ type accountResults struct {
 type accountsResults []accountResults
 
 func getAssessmentTargetsArns(svc inspectoriface.InspectorAPI) ([]*string, error) {
-	// TODO: handle pagination
 	var err error
-	var laTargetsOutput *inspector.ListAssessmentTargetsOutput
-	laTargetsInput := &inspector.ListAssessmentTargetsInput{}
-	laTargetsOutput, err = svc.ListAssessmentTargets(laTargetsInput)
-	return laTargetsOutput.AssessmentTargetArns, err
+	lato := &inspector.ListAssessmentTargetsOutput{}
+	var assessmentTargetArns []*string
+
+	for {
+		lati := &inspector.ListAssessmentTargetsInput{
+			MaxResults: ptrToInt64(10),
+			NextToken:  lato.NextToken,
+		}
+		lato, err = svc.ListAssessmentTargets(lati)
+
+		if errlog.Debug(err) { // will debug & pass if err != nil, will ignore if err == nil
+			return assessmentTargetArns, err
+		}
+		assessmentTargetArns = append(assessmentTargetArns, lato.AssessmentTargetArns...)
+		if lato.NextToken == nil {
+			break
+		}
+	}
+	return assessmentTargetArns, err
 }
 
 func getAssessmentTemplatesArns(svc inspectoriface.InspectorAPI, targetArns []*string) ([]*string, error) {
 	var err error
-	lati := &inspector.ListAssessmentTemplatesInput{
-		AssessmentTargetArns: targetArns,
+
+	var assessmentTemplateArns []*string
+	lato := &inspector.ListAssessmentTemplatesOutput{}
+	for {
+		lati := &inspector.ListAssessmentTemplatesInput{
+			MaxResults: ptrToInt64(10),
+			NextToken:  lato.NextToken,
+		}
+		lato, err = svc.ListAssessmentTemplates(lati)
+
+		if errlog.Debug(err) { // will debug & pass if err != nil, will ignore if err == nil
+			return assessmentTemplateArns, err
+		}
+		assessmentTemplateArns = append(assessmentTemplateArns, lato.AssessmentTemplateArns...)
+		if lato.NextToken == nil {
+			break
+		}
 	}
-	var lato *inspector.ListAssessmentTemplatesOutput
-	lato, err = svc.ListAssessmentTemplates(lati)
-	return lato.AssessmentTemplateArns, err
+	return assessmentTemplateArns, err
 }
 
 type annotatedError struct {
@@ -76,7 +103,8 @@ func processAllRegions(creds *credentials.Credentials, inspectorRegions []string
 			return
 		}
 		var regionTemplateResults regionTemplateResults
-		regionTemplateResults, err = getRegionTemplateResults(sess)
+		svc := inspector.New(sess)
+		regionTemplateResults, err = getRegionTemplateResults(svc)
 		if err != nil {
 			return
 		}
@@ -208,8 +236,7 @@ func listFindingArns(svc inspectoriface.InspectorAPI, assRunArn *string) ([]*str
 	}
 }
 
-func getRegionTemplateResults(sess *session.Session) (results regionTemplateResults, err error) {
-	svc := inspector.New(sess)
+func getRegionTemplateResults(svc inspectoriface.InspectorAPI) (results regionTemplateResults, err error) {
 	// list assessment targets
 	var assTargetArns []*string
 	assTargetArns, err = getAssessmentTargetsArns(svc)
