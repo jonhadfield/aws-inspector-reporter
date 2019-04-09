@@ -1,0 +1,4 @@
+config/
+.local_dist/
+*.xlsx
+coverage.txt
