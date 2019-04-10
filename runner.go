@@ -1,6 +1,7 @@
 package air
 
 import (
+	"fmt"
 	"log"
 	"sort"
 	"strings"
@@ -203,6 +204,7 @@ func getAssessmentRunDetails(svc inspectoriface.InspectorAPI, assessmentRunArns 
 		}
 		var dardo *inspector.DescribeAssessmentRunsOutput
 		dardo, err = svc.DescribeAssessmentRuns(dardi)
+		fmt.Println(dardo)
 		if err != nil {
 			log.Fatal(err)
 			return assessmentRunDetails, err

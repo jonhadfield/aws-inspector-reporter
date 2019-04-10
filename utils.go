@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -188,5 +189,13 @@ func ptrToInt64(in int64) *int64 {
 }
 
 func ptrToStr(in string) *string {
+	return &in
+}
+
+func ptrToTime(in time.Time) *time.Time {
+	return &in
+}
+
+func ptrToBool(in bool) *bool {
 	return &in
 }
