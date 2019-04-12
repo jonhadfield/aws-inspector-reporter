@@ -1,10 +1,7 @@
 package air
 
 import (
-	"fmt"
 	"log"
-	"sort"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/inspector/inspectoriface"
@@ -115,56 +112,6 @@ func processAllRegions(creds *credentials.Credentials, inspectorRegions []string
 	return
 }
 
-func generateAccountRegionXLSXData(accountResults accountResults) (data []dataRow) {
-
-	for _, regionResult := range accountResults.regionResults {
-		if len(regionResult.regionTemplateResults) == 0 {
-			continue
-		}
-
-		for _, r := range regionResult.regionTemplateResults {
-			for _, run := range r.runs {
-				for _, f := range run.findings {
-					var dr dataRow
-					dr.region = regionResult.region
-					dr.severity = strings.ToUpper(*f.Severity)
-					dr.findingTitle = formatTitle(*f.Title)
-					dr.instanceName = getInstanceName(f)
-					dr.instanceID = *f.AssetAttributes.AgentId
-					dr.createdAt = *f.CreatedAt
-					dr.templateName = r.templateName
-					dr.packageArn = *f.ServiceAttributes.RulesPackageArn
-					dr.packageName = f.rulePackageName
-					if f.AssetAttributes.AmiId != nil {
-						dr.amiID = *f.AssetAttributes.AmiId
-					}
-					dr.template = r.templateArn
-					dr.comment = f.comment
-					dr.description = formatDescription(*f.Description)
-					dr.recommendation = formatRecommendation(*f.Recommendation)
-					if f.AssetAttributes.AutoScalingGroup != nil {
-						dr.asgName = *f.AssetAttributes.AutoScalingGroup
-					} else {
-						dr.asgName = "-"
-					}
-					data = append(data, dr)
-				}
-			}
-		}
-	}
-
-	sevLookup := map[string]int{}
-	sevLookup["INFORMATIONAL"] = 1
-	sevLookup["LOW"] = 2
-	sevLookup["MEDIUM"] = 3
-	sevLookup["HIGH"] = 4
-	sort.Slice(data, func(i, j int) bool {
-		return sevLookup[data[i].severity] > sevLookup[data[j].severity]
-	})
-
-	return data
-}
-
 func getLatestAssessmentTemplateRuns(svc inspectoriface.InspectorAPI, templateArns []*string) ([]*string, error) {
 	laro := &inspector.ListAssessmentRunsOutput{}
 	var err error
@@ -204,7 +151,6 @@ func getAssessmentRunDetails(svc inspectoriface.InspectorAPI, assessmentRunArns 
 		}
 		var dardo *inspector.DescribeAssessmentRunsOutput
 		dardo, err = svc.DescribeAssessmentRuns(dardi)
-		fmt.Println(dardo)
 		if err != nil {
 			log.Fatal(err)
 			return assessmentRunDetails, err
@@ -367,6 +313,7 @@ func getRulesPackages(svc inspectoriface.InspectorAPI) (map[string]string, error
 		if err != nil {
 			return rulesPackagesLookup, err
 		}
+
 		rpArns = append(rpArns, lrpo.RulesPackageArns...)
 		if lrpo.NextToken != nil && *lrpo.NextToken != "" {
 			nextToken = *lrpo.NextToken
@@ -379,8 +326,10 @@ func getRulesPackages(svc inspectoriface.InspectorAPI) (map[string]string, error
 		RulesPackageArns: rpArns,
 	}
 	dro, err := svc.DescribeRulesPackages(dri)
-	for _, rp := range dro.RulesPackages {
-		rulesPackagesLookup[*rp.Arn] = *rp.Name
+	if dro != nil && dro.RulesPackages != nil {
+		for _, rp := range dro.RulesPackages {
+			rulesPackagesLookup[*rp.Arn] = *rp.Name
+		}
 	}
 	return rulesPackagesLookup, err
 

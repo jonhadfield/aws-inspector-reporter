@@ -5,6 +5,10 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/service/sts"
+
+	"github.com/aws/aws-sdk-go/service/iam"
+
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"golang.org/x/crypto/ssh/terminal"
@@ -163,8 +167,10 @@ func processMultipleAccounts(sess *session.Session, targets Targets) (accountsRe
 func processSingleAccount(sess *session.Session) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
 	inspectorRegions := getAllInspectorRegions()
 	var tem targetErrorsMap
-	accountID := getAccountID(sess)
-	accountAlias := getAccountAlias(sess)
+	svc := iam.New(sess)
+	stsSvc := sts.New(sess)
+	accountID := getAccountID(stsSvc)
+	accountAlias := getAccountAlias(svc)
 	sessCreds, err := sess.Config.Credentials.Get()
 	if err != nil {
 		os.Exit(1)

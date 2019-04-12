@@ -6,8 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+
+	"github.com/aws/aws-sdk-go/service/iam/iamiface"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/pkg/errors"
@@ -22,6 +25,7 @@ func getInstanceName(finding finding) string {
 	}
 	return "-"
 }
+
 func deleteFile(path string) (err error) {
 	err = os.Remove(path)
 	return
@@ -81,9 +85,8 @@ func OutputError(err error) {
 	_, _ = fmt.Fprintf(os.Stderr, output)
 }
 
-func getAccountID(sess *session.Session) (id string) {
-	stsSvc := sts.New(sess)
-	callerID, err := stsSvc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+func getAccountID(svc stsiface.STSAPI) (id string) {
+	callerID, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 	credsNotFoundMessage := "credentials not found\nsee: https://docs.aws.amazon.com/cli/" +
 		"latest/userguide/cli-chap-getting-started.html#cli-quick-configuration"
 
@@ -120,12 +123,10 @@ func getAccountID(sess *session.Session) (id string) {
 	return id
 }
 
-func getAccountAlias(sess *session.Session) (alias string) {
-	// try to get the account alias
-	iamSvc := iam.New(sess)
+func getAccountAlias(svc iamiface.IAMAPI) (alias string) {
 	var getAliasOutput *iam.ListAccountAliasesOutput
 	var err error
-	getAliasOutput, err = iamSvc.ListAccountAliases(&iam.ListAccountAliasesInput{})
+	getAliasOutput, err = svc.ListAccountAliases(&iam.ListAccountAliasesInput{})
 	if err != nil {
 		fmt.Println("missing \"iam:ListAccountAliases\" permission so unable to retrieve alias")
 	} else if len(getAliasOutput.AccountAliases) > 0 {
@@ -185,6 +186,10 @@ func clearConsoleLine() {
 }
 
 func ptrToInt64(in int64) *int64 {
+	return &in
+}
+
+func ptrToFloat64(in float64) *float64 {
 	return &in
 }
 

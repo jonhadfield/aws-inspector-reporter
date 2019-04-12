@@ -16,7 +16,7 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
-// Email has the settings to be used to connect to a mail server and what the propertie of the email to send
+// Email has the settings to be used to connect to a mail server and the properties of the email to send
 type Email struct {
 	Provider   string
 	Host       string

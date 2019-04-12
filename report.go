@@ -5,12 +5,64 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	yaml "gopkg.in/yaml.v2"
 )
+
+func generateAccountRegionXLSXData(accountResults accountResults) (data []dataRow) {
+
+	for _, regionResult := range accountResults.regionResults {
+		if len(regionResult.regionTemplateResults) == 0 {
+			continue
+		}
+
+		for _, r := range regionResult.regionTemplateResults {
+			for _, run := range r.runs {
+				for _, f := range run.findings {
+					var dr dataRow
+					dr.region = regionResult.region
+					dr.severity = strings.ToUpper(*f.Severity)
+					dr.findingTitle = formatTitle(*f.Title)
+					dr.instanceName = getInstanceName(f)
+					dr.instanceID = *f.AssetAttributes.AgentId
+					dr.createdAt = *f.CreatedAt
+					dr.templateName = r.templateName
+					dr.packageArn = *f.ServiceAttributes.RulesPackageArn
+					dr.packageName = f.rulePackageName
+					if f.AssetAttributes.AmiId != nil {
+						dr.amiID = *f.AssetAttributes.AmiId
+					}
+					dr.template = r.templateArn
+					dr.comment = f.comment
+					dr.description = formatDescription(*f.Description)
+					dr.recommendation = formatRecommendation(*f.Recommendation)
+					if f.AssetAttributes.AutoScalingGroup != nil {
+						dr.asgName = *f.AssetAttributes.AutoScalingGroup
+					} else {
+						dr.asgName = "-"
+					}
+					data = append(data, dr)
+				}
+			}
+		}
+	}
+
+	sevLookup := map[string]int{}
+	sevLookup["INFORMATIONAL"] = 1
+	sevLookup["LOW"] = 2
+	sevLookup["MEDIUM"] = 3
+	sevLookup["HIGH"] = 4
+	sort.Slice(data, func(i, j int) bool {
+		return sevLookup[data[i].severity] > sevLookup[data[j].severity]
+	})
+
+	return data
+}
 
 func loadReportConfig(reportFilePath string, debug bool) (reportConfig Report) {
 	var err error
