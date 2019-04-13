@@ -52,7 +52,7 @@ func getAssessmentTargetsArns(svc inspectoriface.InspectorAPI) ([]*string, error
 		}
 		lato, err = svc.ListAssessmentTargets(lati)
 
-		if errlog.Debug(err) { // will debug & pass if err != nil, will ignore if err == nil
+		if err != nil {
 			return assessmentTargetArns, err
 		}
 		assessmentTargetArns = append(assessmentTargetArns, lato.AssessmentTargetArns...)
