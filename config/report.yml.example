@@ -1,0 +1,9 @@
+---
+email:
+  provider: ses
+  region: "eu-west-1"
+  source: "Inspector <inspector@example.com>"
+  recipients:
+    - "alice@example.com"
+    - "bob@example.com"
+  subject: "Inspector Reports"

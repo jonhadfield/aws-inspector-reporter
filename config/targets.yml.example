@@ -1,0 +1,8 @@
+---
+- id: 012345678901
+  alias: "acme-nonprod"
+  roleName: InspectorScan
+  roleExternalId: somethingrandom
+- id: 987654321098
+  alias: "acme-prod"
+  roleName: InspectorScan

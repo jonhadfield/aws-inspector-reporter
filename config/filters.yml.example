@@ -1,0 +1,7 @@
+---
+- title-match: 5.3.1 Ensure password creation requirements are configured
+  severity: ignore
+  comment: passwords not in use
+- title-match: 1.4.2 Ensure bootloader password is set
+  severity: ignore
+  comment: not viable in AWS

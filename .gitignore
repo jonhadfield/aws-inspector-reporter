@@ -1,4 +1,4 @@
-config/
+config/*.yml
 .local_dist/
 *.xlsx
 coverage.txt
