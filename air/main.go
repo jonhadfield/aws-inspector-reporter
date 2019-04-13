@@ -133,7 +133,7 @@ func processMultipleAccounts(sess *session.Session, targets Targets) (accountsRe
 				desc: fmt.Sprintf("failed to assume role: %s", genRoleArn(target.ID, target.RoleName)),
 			}
 			tem.errors = append(tem.errors, aErr)
-			if isStopTheWorldErr(err) {
+			if isUnrecoverable(err) {
 				tems = append(tems, tem)
 				continue
 			}
@@ -151,7 +151,7 @@ func processMultipleAccounts(sess *session.Session, targets Targets) (accountsRe
 				desc: fmt.Sprintf("failed to get region results"),
 			}
 			tem.errors = append(tem.errors, aErr)
-			if isStopTheWorldErr(err) {
+			if isUnrecoverable(err) {
 				tems = append(tems, tem)
 				continue
 			}
@@ -203,7 +203,7 @@ func processSingleAccount(sess *session.Session) (accountsResults accountsResult
 			desc: fmt.Sprintf("failed to get region results"),
 		}
 		tem.errors = append(tem.errors, aErr)
-		if isStopTheWorldErr(err) {
+		if isUnrecoverable(err) {
 			tems = append(tems, tem)
 		}
 	}
@@ -222,7 +222,7 @@ func anyTargetErrors(tems targetErrorsMaps) bool {
 	return false
 }
 
-func isStopTheWorldErr(err error) bool {
+func isUnrecoverable(err error) bool {
 	switch {
 	case strings.HasPrefix(err.Error(), "ExpiredToken"):
 		return true
