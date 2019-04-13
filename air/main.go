@@ -226,6 +226,8 @@ func isStopTheWorldErr(err error) bool {
 	switch {
 	case strings.HasPrefix(err.Error(), "ExpiredToken"):
 		return true
+	case strings.Contains(err.Error(), "NoCredentialProviders"):
+		return true
 	}
 	return false
 }
