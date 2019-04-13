@@ -40,8 +40,14 @@ func (appConfig *AppConfig) load() {
 
 func (ar *accountsResults) hasFindings() bool {
 	for _, r := range *ar {
-		if len(r.regionResults) > 0 {
-			return true
+		for _, rr := range r.regionResults {
+			for _, rtr := range rr.regionTemplateResults {
+				for _, rtrr := range rtr.runs {
+					if len(rtrr.findings) > 0 {
+						return true
+					}
+				}
+			}
 		}
 	}
 	return false
@@ -82,7 +88,7 @@ func Run(appConfig AppConfig) error {
 			}
 		}
 	} else {
-		fmt.Printf("No results found.\n\n")
+		fmt.Println("No findings found.")
 	}
 
 	if anyTargetErrors(tems) {
