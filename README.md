@@ -34,7 +34,7 @@ By default, AIR will report the severity stated by AWS Inspector. To override th
       severity: <high|medium|low|informational|ignore>  
       comment: <comment to add to spreadsheet>
 
-See [here](config/filters.yml.example) for examples.
+See [here](docs/filters.yml.example) for examples.
 
 
 ### email
@@ -50,7 +50,7 @@ To configure: create a directory called config with a file called 'report.yml' w
         - "<email recipient>"
       subject: "<email subject>"
  
-See [here](config/report.yml.example) for an example.
+See [here](docs/report.yml.example) for an example.
 
 
 ### running against multiple-accounts
@@ -67,7 +67,7 @@ directory called 'config' with a file called 'targets.yml' that specifies a list
 * roleName: name of the role to assume
 * roleExternalId _(optional)_: to match the external id specifed on trust relationship on the target role  
 
-See [here](config/targets.yml.example) for example.
+See [here](docs/targets.yml.example) for example.
 
 [circleci-image]: https://circleci.com/gh/jonhadfield/aws-inspector-reporter.svg?style=svg
 [circleci-url]: https://circleci.com/gh/jonhadfield/aws-inspector-reporter
