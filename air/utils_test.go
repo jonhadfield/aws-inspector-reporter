@@ -5,8 +5,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/inspector"
-
-	"github.com/jonhadfield/aws-inspector-reporter/airtest"
+	a "github.com/jonhadfield/aws-inspector-reporter/air/airtest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,7 +42,7 @@ func TestFormatRecommendation(t *testing.T) {
 }
 
 func TestGetAccountID(t *testing.T) {
-	m := &airtest.MockSTSClient{}
+	m := &a.MockSTSClient{}
 	output := getAccountID(m)
 	assert.Equal(t, output, "012345678901")
 }
@@ -72,7 +71,7 @@ func TestPtrToBool(t *testing.T) {
 }
 
 func TestGetAccountAlias(t *testing.T) {
-	m := &airtest.MockIAMClient{}
+	m := &a.MockIAMClient{}
 	output := getAccountAlias(m)
 	assert.Equal(t, output, "testOne")
 }

@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	air "github.com/jonhadfield/aws-inspector-reporter"
+	air2 "github.com/jonhadfield/aws-inspector-reporter/air"
 
 	"github.com/urfave/cli"
 )
@@ -57,7 +57,7 @@ func startCLI(args []string) (msg string, display bool, err error) {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		_ = air.Run(air.AppConfig{
+		_ = air2.Run(air2.AppConfig{
 			Debug:       c.Bool("debug"),
 			TargetsFile: c.String("targets"),
 			FiltersFile: c.String("filters"),

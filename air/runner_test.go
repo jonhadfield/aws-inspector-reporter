@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	a "github.com/jonhadfield/aws-inspector-reporter/airtest"
+	a "github.com/jonhadfield/aws-inspector-reporter/air/airtest"
 	"github.com/stretchr/testify/assert"
 )
 
