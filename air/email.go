@@ -37,13 +37,13 @@ func emailConfigDefined(email Email) (result bool) {
 }
 func extractEmail(input string) (output string) {
 	if strings.Contains(input, "<") {
-		output = GetStringInBetween(input, "<", ">")
+		output = getStringInBetween(input, "<", ">")
 	} else {
 		output = input
 	}
 	return
 }
-func GetStringInBetween(str, start, end string) (result string) {
+func getStringInBetween(str, start, end string) (result string) {
 	s := strings.Index(str, start)
 	if s == -1 {
 		return
@@ -67,7 +67,7 @@ func validateEmailSettings(email Email) (err error) {
 			return
 		}
 
-		if !StringInSlice(email.Provider, supportedProviders) {
+		if !stringInSlice(email.Provider, supportedProviders) {
 			err = fmt.Errorf("email provider '%s' not supported", email.Provider)
 			return
 		}

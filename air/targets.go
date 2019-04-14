@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type Target struct {
+type target struct {
 	ID             string `yaml:"id"`
 	Alias          string `yaml:"alias"`
 	RoleName       string `yaml:"roleName"`
@@ -17,15 +17,15 @@ type Target struct {
 }
 
 type targetErrorsMap struct {
-	target Target
+	target target
 	errors []annotatedError
 }
 
 type targetErrorsMaps []targetErrorsMap
 
-type Targets []Target
+type targets []target
 
-func loadTargets(targetsFilePath string, debug bool) (targets Targets) {
+func loadTargets(targetsFilePath string, debug bool) (targets targets) {
 	var err error
 	targets, err = readTargets(targetsFilePath)
 	if err != nil && debug {
@@ -34,8 +34,8 @@ func loadTargets(targetsFilePath string, debug bool) (targets Targets) {
 	return
 }
 
-func parseTargetsFileContent(content []byte) (accounts Targets, err error) {
-	var accountsInstance Targets
+func parseTargetsFileContent(content []byte) (accounts targets, err error) {
+	var accountsInstance targets
 	unmarshalErr := yaml.Unmarshal(content, &accountsInstance)
 	if unmarshalErr != nil {
 		err = errors.WithStack(unmarshalErr)
@@ -45,7 +45,7 @@ func parseTargetsFileContent(content []byte) (accounts Targets, err error) {
 	return
 }
 
-func readTargets(targetsPath string) (ret Targets, err error) {
+func readTargets(targetsPath string) (ret targets, err error) {
 	if _, err = os.Stat(targetsPath); err == nil {
 		_, openErr := os.Open(targetsPath)
 		if openErr != nil {

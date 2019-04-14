@@ -11,15 +11,15 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type Filter struct {
+type filter struct {
 	TitleMatch string `yaml:"title-match"`
 	Severity   string `yaml:"severity"`
 	Comment    string `yaml:"comment"`
 }
 
-type Filters []Filter
+type filters []filter
 
-func loadFilters(filtersPath string, debug bool) (filters Filters) {
+func loadFilters(filtersPath string, debug bool) (filters filters) {
 	var err error
 	if _, err = os.Stat(filtersPath); err == nil {
 		_, openErr := os.Open(filtersPath)
@@ -40,12 +40,12 @@ func loadFilters(filtersPath string, debug bool) (filters Filters) {
 	return
 }
 
-func parseFiltersFileContent(content []byte) (filters Filters, err error) {
+func parseFiltersFileContent(content []byte) (filters filters, err error) {
 	err = errors.WithStack(yaml.Unmarshal(content, &filters))
 	return
 }
 
-func (ar *accountsResults) filter(filters Filters) {
+func (ar *accountsResults) filter(filters filters) {
 	var filteredResults accountsResults
 	for _, res := range *ar {
 		filteredResult := res
@@ -79,7 +79,7 @@ func (ar *accountsResults) filter(filters Filters) {
 	*ar = filteredResults
 }
 
-func filterFinding(finding finding, filters Filters) (out finding) {
+func filterFinding(finding finding, filters filters) (out finding) {
 	out = finding
 	for _, f := range filters {
 		if f.TitleMatch != "" {

@@ -48,8 +48,8 @@ func TestGetAccountID(t *testing.T) {
 }
 
 func TestStringInSlice(t *testing.T) {
-	assert.True(t, StringInSlice("test2", []string{"test1", "test2", "test3"}))
-	assert.False(t, StringInSlice("test4", []string{"test1", "test2", "test3"}))
+	assert.True(t, stringInSlice("test2", []string{"test1", "test2", "test3"}))
+	assert.False(t, stringInSlice("test4", []string{"test1", "test2", "test3"}))
 }
 
 func TestPtrToInt64(t *testing.T) {

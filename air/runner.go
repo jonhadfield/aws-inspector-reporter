@@ -374,7 +374,7 @@ func getAllInspectorRegions() (result []string) {
 	keys := make([]string, 0, len(resMaps))
 	for _, resMap := range resMaps {
 		for _, ra := range resMap {
-			if !StringInSlice(ra.ID(), nonStandardRegions) {
+			if !stringInSlice(ra.ID(), nonStandardRegions) {
 				keys = append(keys, ra.ID())
 			}
 		}

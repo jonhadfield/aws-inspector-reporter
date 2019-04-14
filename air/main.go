@@ -25,8 +25,8 @@ type AppConfig struct {
 	TargetsFile string
 	FiltersFile string
 	ReportFile  string
-	filters     Filters
-	targets     Targets
+	filters     filters
+	targets     targets
 	report      Report
 }
 
@@ -107,7 +107,7 @@ func Run(appConfig AppConfig) error {
 	return err
 }
 
-func processMultipleAccounts(sess *session.Session, targets Targets) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
+func processMultipleAccounts(sess *session.Session, targets targets) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
 	for _, target := range targets {
 		var tem targetErrorsMap
 		tem.target = target
@@ -118,7 +118,7 @@ func processMultipleAccounts(sess *session.Session, targets Targets) (accountsRe
 			shortAccountOutput = target.ID
 		}
 		statusOutput := fmt.Sprintf("Processing: [%s]...", shortAccountOutput)
-		statusOutput = PadToWidth(statusOutput, " ", 0, true)
+		statusOutput = padToWidth(statusOutput, " ", 0, true)
 		width, _, _ := terminal.GetSize(0)
 		if len(statusOutput) == width {
 			fmt.Printf(statusOutput[0:width-3] + "   \r")
@@ -194,7 +194,7 @@ func processSingleAccount(sess *session.Session) (accountsResults accountsResult
 	creds := credentials.NewStaticCredentials(sessCreds.AccessKeyID,
 		sessCreds.SecretAccessKey, sessCreds.SessionToken)
 	statusOutput := fmt.Sprintf("Processing: [%s]...", shortAccountOutput)
-	statusOutput = PadToWidth(statusOutput, " ", 0, true)
+	statusOutput = padToWidth(statusOutput, " ", 0, true)
 	width, _, _ := terminal.GetSize(0)
 	if len(statusOutput) == width {
 		fmt.Printf(statusOutput[0:width-3] + "   \r")

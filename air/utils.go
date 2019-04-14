@@ -30,7 +30,7 @@ func deleteFile(path string) (err error) {
 	err = os.Remove(path)
 	return
 }
-func PadToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (output string) {
+func padToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (output string) {
 	// Split string into lines
 	var lines []string
 	var newLines []string
@@ -80,8 +80,8 @@ func PadToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (
 	}
 	return strings.Join(newLines, "")
 }
-func OutputError(err error) {
-	output := PadToWidth(fmt.Sprintf("error: %v\n", err), " ", 0, false)
+func outputError(err error) {
+	output := padToWidth(fmt.Sprintf("error: %v\n", err), " ", 0, false)
 	_, _ = fmt.Fprintf(os.Stderr, output)
 }
 
@@ -97,15 +97,15 @@ func getAccountID(svc stsiface.STSAPI) (id string) {
 				// not using user creds, so need to try a different method
 			} else if awsErr.Code() == "NoCredentialProviders" {
 				err = errors.New(credsNotFoundMessage)
-				OutputError(err)
+				outputError(err)
 				os.Exit(1)
 			} else if awsErr.Code() == "ExpiredToken" {
 				err = errors.New("temporary credentials have expired")
-				OutputError(err)
+				outputError(err)
 				os.Exit(1)
 			} else if strings.Contains(awsErr.Message(), "security token included in the request is invalid") {
 				err = errors.New("specified credentials have an invalid security token")
-				OutputError(err)
+				outputError(err)
 				os.Exit(1)
 			} else {
 				fmt.Println(fmt.Sprintf("unhandled exception using specified credentials: %s", awsErr.Message()))
@@ -114,7 +114,7 @@ func getAccountID(svc stsiface.STSAPI) (id string) {
 	case callerID.Arn == nil:
 		err = errors.New("credentials not found\nsee: https://docs.aws.amazon.com/cli/" +
 			"latest/userguide/cli-chap-getting-started.html#cli-quick-configuration")
-		OutputError(err)
+		outputError(err)
 		os.Exit(1)
 	default:
 		id = *callerID.Account
@@ -172,7 +172,7 @@ func formatRecommendation(in string) string {
 	return strings.Join(recLines, "\r\n")
 }
 
-func StringInSlice(a string, list []string) bool {
+func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
 			return true
@@ -182,7 +182,7 @@ func StringInSlice(a string, list []string) bool {
 }
 
 func clearConsoleLine() {
-	fmt.Printf("%s", PadToWidth("", " ", 0, false))
+	fmt.Printf("%s", padToWidth("", " ", 0, false))
 }
 
 func ptrToInt64(in int64) *int64 {
