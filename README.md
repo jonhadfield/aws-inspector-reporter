@@ -27,6 +27,24 @@ Type air and press enter.
 ### authentication
 AIR retrieves Inspector findings using the AWS API that requires a set of API credentials. See [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-quick-configuration) for instructions on how to set credentials. 
 
+### permissions
+#### basic  
+In order for AIR to access the AWS Inspector findings the user or role that it runs under will need the following policy:  
+``
+arn:aws:iam::aws:policy/AmazonInspectorReadOnlyAccess  
+``    
+
+For AIR to be able to use the AWS Account alias (name) instead of just the AWS Account ID number, it additionally requires this permission:  
+``
+iam:ListAccountAliases
+``  
+
+#### sending emails with AWS SES (Simple Email Service)
+AIR will additionally require the following permission for the identity resource sending the email:  
+``
+ses:SendRawEmail
+``
+
 ### filtering
 By default, AIR will report the severity stated by AWS Inspector. To override these, create a directory called config with a file called 'filters.yml' in with a list of filters to apply:  
 
