@@ -4,3 +4,5 @@ config/
 coverage.txt
 coverage.tmp
 .idea/
+.DS_Store
+deployment.zip
