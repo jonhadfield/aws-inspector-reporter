@@ -38,6 +38,20 @@ build-all:
 	GOOS=freebsd CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "main.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"' -o ".local_dist/air_freebsd_amd64" cmd/air/main.go
 	GOOS=windows CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "main.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"' -o ".local_dist/air_windows_amd64.exe" cmd/air/main.go
 
+build-linux:
+	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "main.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"' -o ".local_dist/air_linux_amd64" cmd/air/main.go
+
+docker-test: build-linux
+	docker run --rm -v "$$PWD":/var/task lambci/lambda:go1.x .local_dist/air_lambda_linux_amd64 '{"some": "event"}'
+
+build-lambda:
+	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -d -w -X "main.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"' -o "main" lambda/air/main.go
+
+package-lambda: build-lambda
+	rm -f deployment.zip
+	zip -j deployment.zip main
+	rm -f main
+
 install:
 	go install ./cmd/...
 

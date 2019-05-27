@@ -28,6 +28,7 @@ type AppConfig struct {
 	filters     filters
 	targets     targets
 	report      Report
+	OutputDir   string
 }
 
 func (appConfig *AppConfig) load() {
@@ -78,13 +79,15 @@ func Run(appConfig AppConfig) error {
 		// if we still have results, then output to spreadsheet
 		var reportPath string
 		if len(accountsResults) > 0 {
-			reportPath, err = generateSpreadsheet(accountsResults)
+			reportPath, err = generateSpreadsheet(accountsResults, appConfig.OutputDir)
 			if err != nil {
 				fmt.Println("failed to generate spreadsheet:", err)
 				os.Exit(1)
 			}
 			if !reflect.DeepEqual(appConfig.report.Email, Email{}) {
-				_ = emailReport(initialSess, reportPath, appConfig.report.Email, false)
+				if err = emailReport(initialSess, reportPath, appConfig.report.Email, false); err != nil {
+					return err
+				}
 			}
 		}
 	} else {

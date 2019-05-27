@@ -2,6 +2,7 @@ module github.com/jonhadfield/aws-inspector-reporter
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
+	github.com/aws/aws-lambda-go v1.10.0
 	github.com/aws/aws-sdk-go v1.19.6
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect

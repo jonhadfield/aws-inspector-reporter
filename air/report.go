@@ -3,6 +3,7 @@ package air
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -66,6 +67,29 @@ func generateAccountRegionXLSXData(accountResults accountResults) (data []dataRo
 
 func loadReportConfig(reportFilePath string, debug bool) (reportConfig Report) {
 	var err error
+
+	// try loading from envvars (only AWS SES Supported so far)
+	upper := strings.ToUpper
+	if upper(os.Getenv("AIR_EMAIL_PROVIDER")) == "SES" {
+		log.Print("Got AIR EMAIL PROVIDER:", os.Getenv("AIR_EMAIL_PROVIDER"))
+		if os.Getenv("AIR_EMAIL_AWS_REGION") != "" &&
+			os.Getenv("AIR_EMAIL_SOURCE") != "" &&
+			os.Getenv("AIR_EMAIL_RECIPIENTS") != "" &&
+			os.Getenv("AIR_EMAIL_SUBJECT") != "" {
+			recipients := strings.Split(os.Getenv("AIR_EMAIL_RECIPIENTS"), ",")
+			email := Email{
+				Provider:   "ses",
+				Region:     os.Getenv("AIR_EMAIL_AWS_REGION"),
+				Source:     os.Getenv("AIR_EMAIL_SOURCE"),
+				Recipients: recipients,
+				Subject:    os.Getenv("AIR_EMAIL_SUBJECT"),
+			}
+			reportConfig.Email = email
+			return
+		}
+	}
+
+	// try loading from file
 	if _, err = os.Stat(reportFilePath); err == nil {
 		_, err = os.Open(reportFilePath)
 		if err != nil && debug {
@@ -104,7 +128,7 @@ type dataRow struct {
 	comment        string
 }
 
-func generateSpreadsheet(accountsResults accountsResults) (string, error) {
+func generateSpreadsheet(accountsResults accountsResults, outputDir string) (string, error) {
 	// create spreadsheet
 	xlsx := excelize.NewFile()
 
@@ -207,7 +231,14 @@ func generateSpreadsheet(accountsResults accountsResults) (string, error) {
 	}
 
 	timeStamp := time.Now().UTC().Format("20060102150405")
-	path := fmt.Sprintf("inspector_report_%s.xlsx", timeStamp)
+	var pathPrefix string
+	if outputDir != "" {
+		pathPrefix = outputDir
+		if !strings.HasSuffix(outputDir, string(filepath.Separator)) {
+			pathPrefix = outputDir + string(filepath.Separator)
+		}
+	}
+	path := fmt.Sprintf("%sinspector_report_%s.xlsx", pathPrefix, timeStamp)
 	err := xlsx.SaveAs(path)
 	if err != nil {
 		fmt.Println(err)

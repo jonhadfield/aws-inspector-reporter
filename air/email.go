@@ -131,8 +131,8 @@ func emailReport(sess *session.Session, reportPath string, email Email, deleteAf
 		if err != nil {
 			delErr := deleteFile(reportPath)
 			if delErr != nil {
-				err = errors.WithStack(delErr)
-				return
+				origErr := err.Error()
+				err = errors.New(origErr + "\nAdditionally, the report file could not be deleted.")
 			}
 			return
 		}
