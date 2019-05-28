@@ -1,7 +1,6 @@
 package air
 
 import (
-	"log"
 	"regexp"
 
 	"github.com/aws/aws-sdk-go/service/inspector"
@@ -27,17 +26,13 @@ func (ar *accountsResults) filter(filters filters) {
 		filterMaps = make(map[string]*regexp.Regexp)
 	}
 	var filteredResults accountsResults
-	log.Print(len(*ar), "results for account")
 	for _, res := range *ar {
-		log.Print("processing filters for results for account:", res.accountID, " ",res.accountAlias)
 		filteredResult := res
 		var filteredRegionResults []regionResult
-		log.Print(len(res.regionResults), "region results")
 		for _, rres := range res.regionResults {
 			filteredRegionResult := rres
 			var filteredRegionTemplateResults regionTemplateResults
 			for _, rtr := range rres.regionTemplateResults {
-				log.Print("process region template results for template:", rtr.templateName)
 				filtersRegionTemplateResult := rtr
 				var filteredRuns []run
 				for _, run := range rtr.runs {
@@ -61,7 +56,6 @@ func (ar *accountsResults) filter(filters filters) {
 		filteredResults = append(filteredResults, filteredResult)
 	}
 	*ar = filteredResults
-	log.Print("finished processing filters for account")
 }
 
 var filterMaps map[string]*regexp.Regexp
@@ -72,7 +66,6 @@ func getCompiledRegex(regexString string) *regexp.Regexp {
 			return v
 		}
 	}
-	log.Print("having to compile:", regexString)
 	newRegex := regexp.MustCompile(regexString)
 	filterMaps[regexString] = newRegex
 	return newRegex

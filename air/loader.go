@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
@@ -80,7 +79,6 @@ func loadReportConfig(configPath string, debug bool) (reportConfig Report) {
 	// try loading from envvars (only AWS SES Supported so far)
 	upper := strings.ToUpper
 	if upper(os.Getenv("AIR_EMAIL_PROVIDER")) == "SES" {
-		log.Print("Got AIR EMAIL PROVIDER:", os.Getenv("AIR_EMAIL_PROVIDER"))
 		if os.Getenv("AIR_EMAIL_AWS_REGION") != "" &&
 			os.Getenv("AIR_EMAIL_SOURCE") != "" &&
 			os.Getenv("AIR_EMAIL_RECIPIENTS") != "" &&

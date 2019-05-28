@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -14,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/pkg/errors"
-	gomail "gopkg.in/gomail.v2"
+	"gopkg.in/gomail.v2"
 )
 
 // Email has the settings to be used to connect to a mail server and the properties of the email to send
@@ -119,7 +118,6 @@ func emailReport(sess *session.Session, reportPath string, email Email, deleteAf
 	}
 	switch email.Provider {
 	case "ses":
-		log.Print("Preparing to send email")
 		msg.SetHeader("To", strings.Join(email.Recipients, ","))
 		svc := ses.New(sess, &aws.Config{Region: ptrToStr(email.Region)})
 		message := ses.RawMessage{Data: emailRaw.Bytes()}
@@ -129,7 +127,6 @@ func emailReport(sess *session.Session, reportPath string, email Email, deleteAf
 			destinations = append(destinations, ptrToStr(dest))
 		}
 		input := ses.SendRawEmailInput{Source: source, Destinations: destinations, RawMessage: &message}
-		log.Print("Sending email")
 		_, err = svc.SendRawEmail(&input)
 		if err != nil {
 			delErr := deleteFile(reportPath)

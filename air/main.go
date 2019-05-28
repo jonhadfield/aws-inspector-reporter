@@ -81,7 +81,6 @@ func Run(appConfig AppConfig) error {
 	clearConsoleLine()
 
 	// if we have results and filters defined, then apply filters
-	log.Print("applying filters")
 	if accountsResults != nil && accountsResults.hasFindings() {
 		if len(appConfig.filters) > 0 {
 			accountsResults.filter(appConfig.filters)
@@ -89,28 +88,22 @@ func Run(appConfig AppConfig) error {
 		// if we still have results, then output to spreadsheet
 		var reportPath string
 		if len(accountsResults) > 0 {
-			log.Print("generating spreadsheet")
 			reportPath, err = generateSpreadsheet(accountsResults, appConfig.OutputDir)
-			log.Print("finished generating spreadsheet with err:", err)
 			if err != nil {
 				fmt.Println("failed to generate spreadsheet:", err)
 				os.Exit(1)
 			}
 			if !reflect.DeepEqual(appConfig.report.Email, Email{}) {
-				log.Print("about to call emailReport")
 				if err = emailReport(initialSess, reportPath, appConfig.report.Email, false); err != nil {
 					return err
 				}
-				log.Print("finished call to emailReport")
 			}
 		}
-		log.Print("finished applying filters")
 	} else {
 		log.Print("No findings found.")
 		fmt.Println("No findings found.")
 	}
 
-	log.Print("checking for target errors")
 	if anyTargetErrors(tems) {
 		fmt.Printf("Errors encountered during processing...\n\n")
 		for _, t := range tems {
@@ -123,7 +116,6 @@ func Run(appConfig AppConfig) error {
 			}
 		}
 	}
-	log.Print("finished checking for target errors")
 
 	return err
 }
@@ -186,8 +178,6 @@ func processMultipleAccounts(sess *session.Session, targets targets) (accountsRe
 		accountOutput.regionResults = perRegionResults
 		accountsResults = append(accountsResults, accountOutput)
 		tems = append(tems, tem)
-		log.Print("Finished processing:", shortAccountOutput)
-
 	}
 	return accountsResults, tems, err
 }

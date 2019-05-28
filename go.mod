@@ -1,7 +1,7 @@
 module github.com/jonhadfield/aws-inspector-reporter
 
 require (
-	github.com/360EntSecGroup-Skylar/excelize v1.4.1
+	github.com/360EntSecGroup-Skylar/excelize/v2 v2.0.1-0.20190524014814-623375780586
 	github.com/aws/aws-lambda-go v1.10.0
 	github.com/aws/aws-sdk-go v1.19.39
 	github.com/fatih/color v1.7.0 // indirect
@@ -12,6 +12,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/snwfdhmp/errlog v0.0.0-20190419112242-156d20a3e777
 	github.com/spf13/afero v1.2.2 // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/urfave/cli v1.20.0
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f

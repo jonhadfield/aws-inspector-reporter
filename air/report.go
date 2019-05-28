@@ -2,14 +2,13 @@ package air
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
 func generateAccountRegionXLSXData(accountResults accountResults) (data []dataRow) {
@@ -81,7 +80,6 @@ type dataRow struct {
 }
 
 func generateSpreadsheet(accountsResults accountsResults, outputDir string) (string, error) {
-	// create spreadsheet
 	xlsx := excelize.NewFile()
 
 	var headerStyle, highResultStyle, mediumResultStyle, lowResultStyle, infoResultStyle, ignoredResultStyle, defaultCenteredStyle int
@@ -93,12 +91,8 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 	ignoredResultStyle, _ = xlsx.NewStyle(`{"font":{"bold":true,"italic":false,"family":"Calibri","size":12,"color":"#000000"},"alignment":{"horizontal":"center","ident":1,"justify_last_line":true,"reading_order":0,"relative_indent":1,"shrink_to_fit":true,"vertical":"","wrap_text":false}}`)
 	defaultCenteredStyle, _ = xlsx.NewStyle(`{"font":{"bold":false,"italic":false,"family":"Calibri","size":12,"color":"#000000"},"alignment":{"horizontal":"center","ident":1,"justify_last_line":true,"reading_order":0,"relative_indent":1,"shrink_to_fit":true,"vertical":"","wrap_text":true}}`)
 	var firstSheet bool
-	log.Printf("accountsResults: %d", len(accountsResults))
 	for _, accountResults := range accountsResults {
-		log.Print("creating sheet for account:", accountResults.accountAlias, accountResults.accountID)
-		log.Print("generating XLSX data")
 		accountSpreadsheetData := generateAccountRegionXLSXData(accountResults)
-		log.Print("finished generating XLSX data")
 		if len(accountSpreadsheetData) == 0 {
 			continue
 		}
@@ -110,34 +104,31 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 			_ = xlsx.NewSheet(accountResults.accountAlias)
 		}
 
-		xlsx.SetCellValue(sheetName, "A1", "SEVERITY")
-		xlsx.SetCellValue(sheetName, "B1", "REGION")
-		xlsx.SetCellValue(sheetName, "C1", "TEMPLATE")
-		xlsx.SetCellValue(sheetName, "D1", "DATE")
-		xlsx.SetCellValue(sheetName, "E1", "INSTANCE ID")
-		xlsx.SetCellValue(sheetName, "F1", "INSTANCE NAME")
-		xlsx.SetCellValue(sheetName, "G1", "ASG")
-		xlsx.SetCellValue(sheetName, "H1", "RULES PACKAGE")
-		xlsx.SetCellValue(sheetName, "I1", "TITLE")
-		xlsx.SetCellValue(sheetName, "J1", "DESCRIPTION")
-		xlsx.SetCellValue(sheetName, "K1", "RECOMMENDATION")
-
-		xlsx.SetCellStyle(sheetName, "A1", "K1", headerStyle)
-		xlsx.SetColWidth(sheetName, "A", "A", 15)
-		xlsx.SetColWidth(sheetName, "B", "B", 13.5)
-		xlsx.SetColWidth(sheetName, "C", "C", 26)
-		xlsx.SetColWidth(sheetName, "D", "D", 22.5)
-		xlsx.SetColWidth(sheetName, "E", "E", 19)
-		xlsx.SetColWidth(sheetName, "F", "F", 24)
-		xlsx.SetColWidth(sheetName, "G", "G", 20)
-		xlsx.SetColWidth(sheetName, "H", "H", 44)
-		xlsx.SetColWidth(sheetName, "I", "I", 60)
-		xlsx.SetColWidth(sheetName, "J", "J", 70)
-		xlsx.SetColWidth(sheetName, "K", "K", 150)
-		log.Printf("about to write %d datarows", len(accountSpreadsheetData))
+		_ = xlsx.SetCellValue(sheetName, "A1", "SEVERITY")
+		_ = xlsx.SetCellValue(sheetName, "B1", "REGION")
+		_ = xlsx.SetCellValue(sheetName, "C1", "TEMPLATE")
+		_ = xlsx.SetCellValue(sheetName, "D1", "DATE")
+		_ = xlsx.SetCellValue(sheetName, "E1", "INSTANCE ID")
+		_ = xlsx.SetCellValue(sheetName, "F1", "INSTANCE NAME")
+		_ = xlsx.SetCellValue(sheetName, "G1", "ASG")
+		_ = xlsx.SetCellValue(sheetName, "H1", "RULES PACKAGE")
+		_ = xlsx.SetCellValue(sheetName, "I1", "TITLE")
+		_ = xlsx.SetCellValue(sheetName, "J1", "DESCRIPTION")
+		_ = xlsx.SetCellValue(sheetName, "K1", "RECOMMENDATION")
+		_ = xlsx.SetCellStyle(sheetName, "A1", "K1", headerStyle)
+		_ = xlsx.SetColWidth(sheetName, "A", "A", 15)
+		_ = xlsx.SetColWidth(sheetName, "B", "B", 13.5)
+		_ = xlsx.SetColWidth(sheetName, "C", "C", 26)
+		_ = xlsx.SetColWidth(sheetName, "D", "D", 22.5)
+		_ = xlsx.SetColWidth(sheetName, "E", "E", 19)
+		_ = xlsx.SetColWidth(sheetName, "F", "F", 24)
+		_ = xlsx.SetColWidth(sheetName, "G", "G", 20)
+		_ = xlsx.SetColWidth(sheetName, "H", "H", 44)
+		_ = xlsx.SetColWidth(sheetName, "I", "I", 60)
+		_ = xlsx.SetColWidth(sheetName, "J", "J", 70)
+		_ = xlsx.SetColWidth(sheetName, "K", "K", 150)
 		var lastRow string
 		for i, dataRow := range accountSpreadsheetData {
-			start1 := time.Now()
 			rowNum := i + 2
 			strRowNum := strconv.Itoa(rowNum)
 			resultCell := "A" + strRowNum
@@ -151,52 +142,41 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 			findingTitleCell := "I" + strRowNum
 			descriptionCell := "J" + strRowNum
 			recommendationCell := "K" + strRowNum
-			xlsx.SetCellValue(sheetName, resultCell, dataRow.severity)
+			_ = xlsx.SetCellValue(sheetName, resultCell, dataRow.severity)
 			switch dataRow.severity {
 			case "HIGH":
-				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, highResultStyle)
+				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, highResultStyle)
 			case "MEDIUM":
-				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, mediumResultStyle)
+				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, mediumResultStyle)
 			case "LOW":
-				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, lowResultStyle)
+				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, lowResultStyle)
 			case "INFORMATIONAL":
-				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, infoResultStyle)
+				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, infoResultStyle)
 			case "IGNORED":
-				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, ignoredResultStyle)
+				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, ignoredResultStyle)
 			}
 			if dataRow.comment != "" {
 				comment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "-", dataRow.comment)
 				_ = xlsx.AddComment(sheetName, "A"+strRowNum, comment)
 			}
-			xlsx.SetCellValue(sheetName, regionCell, dataRow.region)
-			xlsx.SetCellValue(sheetName, templateCell, dataRow.templateName)
-			xlsx.SetCellValue(sheetName, dateCell, dataRow.createdAt.Format(time.ANSIC))
-			xlsx.SetCellValue(sheetName, instanceIDCell, dataRow.instanceID)
-			//instComment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "AMI:", dataRow.amiID)
-			//startComment := time.Now()
-			//_ = xlsx.AddComment(sheetName, instanceIDCell, instComment)
-			//durationComment := time.Since(startComment)
-			//fmt.Println("\tcomment took:", durationComment)
-			xlsx.SetCellValue(sheetName, instanceNameCell, dataRow.instanceName)
-			xlsx.SetCellValue(sheetName, rulesPackageCell, dataRow.packageName)
-			xlsx.SetCellValue(sheetName, instanceASGCell, dataRow.asgName)
-			xlsx.SetCellValue(sheetName, findingTitleCell, dataRow.findingTitle)
-			xlsx.SetCellValue(sheetName, descriptionCell, dataRow.description)
-			xlsx.SetCellValue(sheetName, recommendationCell, dataRow.recommendation)
-			xlsx.SetCellStyle(sheetName, "B"+strRowNum, "B"+strRowNum, defaultCenteredStyle)
-			xlsx.SetCellStyle(sheetName, "E"+strRowNum, "G"+strRowNum, defaultCenteredStyle)
+			_ = xlsx.SetCellValue(sheetName, regionCell, dataRow.region)
+			_ = xlsx.SetCellValue(sheetName, templateCell, dataRow.templateName)
+			_ = xlsx.SetCellValue(sheetName, dateCell, dataRow.createdAt.Format(time.ANSIC))
+			_ = xlsx.SetCellValue(sheetName, instanceIDCell, dataRow.instanceID)
+			instComment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "AMI:", dataRow.amiID)
+			_ = xlsx.AddComment(sheetName, instanceIDCell, instComment)
+			_ = xlsx.SetCellValue(sheetName, instanceNameCell, dataRow.instanceName)
+			_ = xlsx.SetCellValue(sheetName, rulesPackageCell, dataRow.packageName)
+			_ = xlsx.SetCellValue(sheetName, instanceASGCell, dataRow.asgName)
+			_ = xlsx.SetCellValue(sheetName, findingTitleCell, dataRow.findingTitle)
+			_ = xlsx.SetCellValue(sheetName, descriptionCell, dataRow.description)
+			_ = xlsx.SetCellValue(sheetName, recommendationCell, dataRow.recommendation)
+			_ = xlsx.SetCellStyle(sheetName, "B"+strRowNum, "B"+strRowNum, defaultCenteredStyle)
+			_ = xlsx.SetCellStyle(sheetName, "E"+strRowNum, "G"+strRowNum, defaultCenteredStyle)
 			lastRow = strRowNum
-			duration1 := time.Since(start1)
-			fmt.Println("row took:", duration1)
 		}
-		// TODO: time autofilter to see if it's the culprit
-		start := time.Now()
 		_ = xlsx.AutoFilter(sheetName, "A1", "H"+lastRow, "")
-		duration := time.Since(start)
-		fmt.Println("autofilter took:", duration)
-		log.Printf("finished writing %d datarows", len(accountSpreadsheetData))
 	}
-	log.Print("finished creating sheet")
 
 	timeStamp := time.Now().UTC().Format("20060102150405")
 	var pathPrefix string
