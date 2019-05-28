@@ -20,6 +20,7 @@ func Handler(cwe events.CloudWatchEvent) error {
 
 	err := air2.Run(air2.AppConfig{
 		Debug:     debug,
+		ConfigPath: os.Getenv("AIR_CONFIG_PATH"),
 		OutputDir: "/tmp",
 	})
 	if err != nil {

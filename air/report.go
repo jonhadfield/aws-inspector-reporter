@@ -2,9 +2,7 @@ package air
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -12,7 +10,6 @@ import (
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	yaml "gopkg.in/yaml.v2"
 )
 
 func generateAccountRegionXLSXData(accountResults accountResults) (data []dataRow) {
@@ -65,51 +62,6 @@ func generateAccountRegionXLSXData(accountResults accountResults) (data []dataRo
 	return data
 }
 
-func loadReportConfig(reportFilePath string, debug bool) (reportConfig Report) {
-	var err error
-
-	// try loading from envvars (only AWS SES Supported so far)
-	upper := strings.ToUpper
-	if upper(os.Getenv("AIR_EMAIL_PROVIDER")) == "SES" {
-		log.Print("Got AIR EMAIL PROVIDER:", os.Getenv("AIR_EMAIL_PROVIDER"))
-		if os.Getenv("AIR_EMAIL_AWS_REGION") != "" &&
-			os.Getenv("AIR_EMAIL_SOURCE") != "" &&
-			os.Getenv("AIR_EMAIL_RECIPIENTS") != "" &&
-			os.Getenv("AIR_EMAIL_SUBJECT") != "" {
-			recipients := strings.Split(os.Getenv("AIR_EMAIL_RECIPIENTS"), ",")
-			email := Email{
-				Provider:   "ses",
-				Region:     os.Getenv("AIR_EMAIL_AWS_REGION"),
-				Source:     os.Getenv("AIR_EMAIL_SOURCE"),
-				Recipients: recipients,
-				Subject:    os.Getenv("AIR_EMAIL_SUBJECT"),
-			}
-			reportConfig.Email = email
-			return
-		}
-	}
-
-	// try loading from file
-	if _, err = os.Stat(reportFilePath); err == nil {
-		_, err = os.Open(reportFilePath)
-		if err != nil && debug {
-			fmt.Println(err)
-		}
-		var reportFileContent []byte
-		reportFileContent, err = ioutil.ReadFile(reportFilePath)
-		if err != nil && debug {
-			fmt.Println(err)
-		}
-		err = yaml.Unmarshal(reportFileContent, &reportConfig)
-		if err != nil && debug {
-			fmt.Println(err)
-		}
-	} else if debug {
-		fmt.Println(err)
-	}
-	return
-}
-
 type dataRow struct {
 	createdAt      time.Time
 	template       string
@@ -141,9 +93,12 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 	ignoredResultStyle, _ = xlsx.NewStyle(`{"font":{"bold":true,"italic":false,"family":"Calibri","size":12,"color":"#000000"},"alignment":{"horizontal":"center","ident":1,"justify_last_line":true,"reading_order":0,"relative_indent":1,"shrink_to_fit":true,"vertical":"","wrap_text":false}}`)
 	defaultCenteredStyle, _ = xlsx.NewStyle(`{"font":{"bold":false,"italic":false,"family":"Calibri","size":12,"color":"#000000"},"alignment":{"horizontal":"center","ident":1,"justify_last_line":true,"reading_order":0,"relative_indent":1,"shrink_to_fit":true,"vertical":"","wrap_text":true}}`)
 	var firstSheet bool
-
+	log.Printf("accountsResults: %d", len(accountsResults))
 	for _, accountResults := range accountsResults {
+		log.Print("creating sheet for account:", accountResults.accountAlias, accountResults.accountID)
+		log.Print("generating XLSX data")
 		accountSpreadsheetData := generateAccountRegionXLSXData(accountResults)
+		log.Print("finished generating XLSX data")
 		if len(accountSpreadsheetData) == 0 {
 			continue
 		}
@@ -179,7 +134,10 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 		xlsx.SetColWidth(sheetName, "I", "I", 60)
 		xlsx.SetColWidth(sheetName, "J", "J", 70)
 		xlsx.SetColWidth(sheetName, "K", "K", 150)
+		log.Printf("about to write %d datarows", len(accountSpreadsheetData))
+		var lastRow string
 		for i, dataRow := range accountSpreadsheetData {
+			start1 := time.Now()
 			rowNum := i + 2
 			strRowNum := strconv.Itoa(rowNum)
 			resultCell := "A" + strRowNum
@@ -205,18 +163,20 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, infoResultStyle)
 			case "IGNORED":
 				xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, ignoredResultStyle)
-				if dataRow.comment != "" {
-					comment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "-", dataRow.comment)
-					_ = xlsx.AddComment(sheetName, "A"+strRowNum, comment)
-				}
-
+			}
+			if dataRow.comment != "" {
+				comment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "-", dataRow.comment)
+				_ = xlsx.AddComment(sheetName, "A"+strRowNum, comment)
 			}
 			xlsx.SetCellValue(sheetName, regionCell, dataRow.region)
 			xlsx.SetCellValue(sheetName, templateCell, dataRow.templateName)
 			xlsx.SetCellValue(sheetName, dateCell, dataRow.createdAt.Format(time.ANSIC))
 			xlsx.SetCellValue(sheetName, instanceIDCell, dataRow.instanceID)
-			instComment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "AMI:", dataRow.amiID)
-			_ = xlsx.AddComment(sheetName, instanceIDCell, instComment)
+			//instComment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "AMI:", dataRow.amiID)
+			//startComment := time.Now()
+			//_ = xlsx.AddComment(sheetName, instanceIDCell, instComment)
+			//durationComment := time.Since(startComment)
+			//fmt.Println("\tcomment took:", durationComment)
 			xlsx.SetCellValue(sheetName, instanceNameCell, dataRow.instanceName)
 			xlsx.SetCellValue(sheetName, rulesPackageCell, dataRow.packageName)
 			xlsx.SetCellValue(sheetName, instanceASGCell, dataRow.asgName)
@@ -225,10 +185,18 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 			xlsx.SetCellValue(sheetName, recommendationCell, dataRow.recommendation)
 			xlsx.SetCellStyle(sheetName, "B"+strRowNum, "B"+strRowNum, defaultCenteredStyle)
 			xlsx.SetCellStyle(sheetName, "E"+strRowNum, "G"+strRowNum, defaultCenteredStyle)
-			_ = xlsx.AutoFilter(sheetName, "A1", "H"+strRowNum, "")
-
+			lastRow = strRowNum
+			duration1 := time.Since(start1)
+			fmt.Println("row took:", duration1)
 		}
+		// TODO: time autofilter to see if it's the culprit
+		start := time.Now()
+		_ = xlsx.AutoFilter(sheetName, "A1", "H"+lastRow, "")
+		duration := time.Since(start)
+		fmt.Println("autofilter took:", duration)
+		log.Printf("finished writing %d datarows", len(accountSpreadsheetData))
 	}
+	log.Print("finished creating sheet")
 
 	timeStamp := time.Now().UTC().Format("20060102150405")
 	var pathPrefix string

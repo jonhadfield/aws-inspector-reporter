@@ -204,3 +204,10 @@ func ptrToTime(in time.Time) *time.Time {
 func ptrToBool(in bool) *bool {
 	return &in
 }
+
+func ensureTrailingSlash(in string) string {
+	if ! strings.HasSuffix(in, string(os.PathSeparator)) {
+		return in + string(os.PathSeparator)
+	}
+	return in
+}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -118,6 +119,7 @@ func emailReport(sess *session.Session, reportPath string, email Email, deleteAf
 	}
 	switch email.Provider {
 	case "ses":
+		log.Print("Preparing to send email")
 		msg.SetHeader("To", strings.Join(email.Recipients, ","))
 		svc := ses.New(sess, &aws.Config{Region: ptrToStr(email.Region)})
 		message := ses.RawMessage{Data: emailRaw.Bytes()}
@@ -127,6 +129,7 @@ func emailReport(sess *session.Session, reportPath string, email Email, deleteAf
 			destinations = append(destinations, ptrToStr(dest))
 		}
 		input := ses.SendRawEmailInput{Source: source, Destinations: destinations, RawMessage: &message}
+		log.Print("Sending email")
 		_, err = svc.SendRawEmail(&input)
 		if err != nil {
 			delErr := deleteFile(reportPath)

@@ -1,14 +1,12 @@
 package air
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
+	"log"
 	"regexp"
 
 	"github.com/aws/aws-sdk-go/service/inspector"
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type filter struct {
@@ -19,41 +17,27 @@ type filter struct {
 
 type filters []filter
 
-func loadFilters(filtersPath string, debug bool) (filters filters) {
-	var err error
-	if _, err = os.Stat(filtersPath); err == nil {
-		_, openErr := os.Open(filtersPath)
-		if openErr != nil && debug {
-			fmt.Println(err)
-		}
-		filtersFileContent, readErr := ioutil.ReadFile(filtersPath)
-		if readErr != nil && debug {
-			fmt.Println(err)
-		}
-		filters, err = parseFiltersFileContent(filtersFileContent)
-		if err != nil && debug {
-			fmt.Println(err)
-		}
-	} else if debug {
-		fmt.Println(err)
-	}
-	return
-}
-
 func parseFiltersFileContent(content []byte) (filters filters, err error) {
 	err = errors.WithStack(yaml.Unmarshal(content, &filters))
 	return
 }
 
 func (ar *accountsResults) filter(filters filters) {
+	if filterMaps == nil {
+		filterMaps = make(map[string]*regexp.Regexp)
+	}
 	var filteredResults accountsResults
+	log.Print(len(*ar), "results for account")
 	for _, res := range *ar {
+		log.Print("processing filters for results for account:", res.accountID, " ",res.accountAlias)
 		filteredResult := res
 		var filteredRegionResults []regionResult
+		log.Print(len(res.regionResults), "region results")
 		for _, rres := range res.regionResults {
 			filteredRegionResult := rres
 			var filteredRegionTemplateResults regionTemplateResults
 			for _, rtr := range rres.regionTemplateResults {
+				log.Print("process region template results for template:", rtr.templateName)
 				filtersRegionTemplateResult := rtr
 				var filteredRuns []run
 				for _, run := range rtr.runs {
@@ -77,15 +61,30 @@ func (ar *accountsResults) filter(filters filters) {
 		filteredResults = append(filteredResults, filteredResult)
 	}
 	*ar = filteredResults
+	log.Print("finished processing filters for account")
+}
+
+var filterMaps map[string]*regexp.Regexp
+
+func getCompiledRegex(regexString string) *regexp.Regexp {
+	for k, v := range filterMaps {
+		if k == regexString {
+			return v
+		}
+	}
+	log.Print("having to compile:", regexString)
+	newRegex := regexp.MustCompile(regexString)
+	filterMaps[regexString] = newRegex
+	return newRegex
 }
 
 func filterFinding(finding finding, filters filters) (out finding) {
 	out = finding
 	for _, f := range filters {
 		if f.TitleMatch != "" {
-			r := regexp.MustCompile(f.TitleMatch)
+			r := getCompiledRegex(f.TitleMatch)
 			if r.MatchString(*finding.Title) {
-				out.Severity = ptrToStr("ignored")
+				out.Severity = ptrToStr(f.Severity)
 				out.comment = f.Comment
 				return out
 			}

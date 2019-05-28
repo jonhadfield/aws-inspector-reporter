@@ -1,12 +1,11 @@
 package air
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type target struct {
@@ -24,15 +23,6 @@ type targetErrorsMap struct {
 type targetErrorsMaps []targetErrorsMap
 
 type targets []target
-
-func loadTargets(targetsFilePath string, debug bool) (targets targets) {
-	var err error
-	targets, err = readTargets(targetsFilePath)
-	if err != nil && debug {
-		fmt.Println(err)
-	}
-	return
-}
 
 func parseTargetsFileContent(content []byte) (accounts targets, err error) {
 	var accountsInstance targets

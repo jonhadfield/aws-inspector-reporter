@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 	"time"
 
@@ -51,25 +50,19 @@ func startCLI(args []string) (msg string, display bool, err error) {
 	app.Description = ""
 
 	app.Flags = []cli.Flag{
+		cli.StringFlag{Name: "config-path", Usage: "load configuration files from filesystem path or AWS S3 using s3://...", Value: "config/"},
+		cli.StringFlag{Name: "output", Usage: "report output directory"},
 		cli.BoolFlag{Name: "debug"},
-		cli.StringFlag{Name: "targets", Usage: "load targets from `FILE`", Value: "config/targets.yml"},
-		cli.StringFlag{Name: "filters", Usage: "load filters from `FILE`", Value: "config/filters.yml"},
-		cli.StringFlag{Name: "report", Usage: "load report configuration from `FILE`", Value: "config/report.yml"},
-		cli.StringFlag{Name: "output", Usage: "output directory"},
 	}
 
 	app.Action = func(c *cli.Context) error {
 		_ = air2.Run(air2.AppConfig{
-			Debug:       c.Bool("debug"),
-			TargetsFile: c.String("targets"),
-			FiltersFile: c.String("filters"),
-			ReportFile:  c.String("report"),
-			OutputDir:   strings.Trim(c.String("output"), " "),
+			Debug:      c.Bool("debug"),
+			ConfigPath: c.String("config-path"),
+			OutputDir:  strings.Trim(c.String("output"), " "),
 		})
 
 		return nil
 	}
-
-	sort.Sort(cli.FlagsByName(app.Flags))
 	return msg, display, app.Run(args)
 }
