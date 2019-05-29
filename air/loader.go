@@ -26,6 +26,10 @@ func loadFilters(configPath string, debug bool) (filters filters) {
 		sess := session.Must(session.NewSession())
 		var region string
 		region, err = s3manager.GetBucketRegion(context.Background(), sess, parts[0], "us-east-1")
+		if err != nil && debug {
+			fmt.Println("failed to get bucket region")
+			os.Exit(1)
+		}
 		sess = session.Must(session.NewSession(&aws.Config{Region: ptrToStr(region)}))
 		svc := s3.New(sess)
 		input := &s3.GetObjectInput{
@@ -69,7 +73,7 @@ func loadFilters(configPath string, debug bool) (filters filters) {
 			fmt.Println(err)
 		}
 	}
-	return
+	return filters
 }
 
 // try loading report configuration from envvars, then from path provided
@@ -103,6 +107,10 @@ func loadReportConfig(configPath string, debug bool) (reportConfig Report) {
 		sess := session.Must(session.NewSession())
 		var region string
 		region, err = s3manager.GetBucketRegion(context.Background(), sess, parts[0], "us-east-1")
+		if err != nil && debug {
+			fmt.Println("failed to get bucket region")
+			os.Exit(1)
+		}
 		sess = session.Must(session.NewSession(&aws.Config{Region: ptrToStr(region)}))
 		svc := s3.New(sess)
 		input := &s3.GetObjectInput{
@@ -149,7 +157,7 @@ func loadReportConfig(configPath string, debug bool) (reportConfig Report) {
 	} else if debug {
 		fmt.Println(err)
 	}
-	return
+	return reportConfig
 }
 
 func loadTargets(configPath string, debug bool) (targets targets) {
@@ -193,5 +201,5 @@ func loadTargets(configPath string, debug bool) (targets targets) {
 			fmt.Println(err)
 		}
 	}
-	return
+	return targets
 }
