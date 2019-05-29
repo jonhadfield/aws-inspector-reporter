@@ -163,8 +163,11 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 			_ = xlsx.SetCellValue(sheetName, templateCell, dataRow.templateName)
 			_ = xlsx.SetCellValue(sheetName, dateCell, dataRow.createdAt.Format(time.ANSIC))
 			_ = xlsx.SetCellValue(sheetName, instanceIDCell, dataRow.instanceID)
-			instComment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "AMI:", dataRow.amiID)
-			_ = xlsx.AddComment(sheetName, instanceIDCell, instComment)
+			// set AMI as comment on instance cell if found
+			if dataRow.amiID != "" {
+				instComment := fmt.Sprintf("{\"author\":\"%s\",\"text\":\" %s\"}", "AMI:", dataRow.amiID)
+				_ = xlsx.AddComment(sheetName, instanceIDCell, instComment)
+			}
 			_ = xlsx.SetCellValue(sheetName, instanceNameCell, dataRow.instanceName)
 			_ = xlsx.SetCellValue(sheetName, rulesPackageCell, dataRow.packageName)
 			_ = xlsx.SetCellValue(sheetName, instanceASGCell, dataRow.asgName)
