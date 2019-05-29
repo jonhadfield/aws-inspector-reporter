@@ -149,9 +149,7 @@ func formatDescription(in string) string {
 	var descriptionLines []string
 	for _, line := range result {
 		// Strip 'Description' prefix
-		if strings.HasPrefix(line, "Description") {
-			line = line[11:]
-		}
+		line = strings.TrimPrefix(line, "Description")
 		trimmedLine := strings.TrimSpace(line)
 		if len(trimmedLine) > 0 {
 			descriptionLines = append(descriptionLines, trimmedLine)
