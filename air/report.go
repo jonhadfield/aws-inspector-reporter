@@ -152,7 +152,7 @@ func generateSpreadsheet(accountsResults accountsResults, outputDir string) (str
 				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, lowResultStyle)
 			case "INFORMATIONAL":
 				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, infoResultStyle)
-			case "IGNORED":
+			case "IGNORE":
 				_ = xlsx.SetCellStyle(sheetName, "A"+strRowNum, "A"+strRowNum, ignoredResultStyle)
 			}
 			if dataRow.comment != "" {
