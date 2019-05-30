@@ -52,6 +52,7 @@ func startCLI(args []string) (msg string, display bool, err error) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{Name: "config-path", Usage: "load configuration files from filesystem path or AWS S3 using s3://...", Value: "config/"},
 		cli.StringFlag{Name: "output", Usage: "report output directory"},
+		cli.IntFlag{Name: "max-report-age", Usage: "max age (in days) of reports to check", Value: air2.DefaultMaxReportAge},
 		cli.BoolFlag{Name: "debug"},
 	}
 
@@ -59,6 +60,7 @@ func startCLI(args []string) (msg string, display bool, err error) {
 		_ = air2.Run(air2.AppConfig{
 			Debug:      c.Bool("debug"),
 			ConfigPath: c.String("config-path"),
+			MaxReportAge: c.Int("max-report-age"),
 			OutputDir:  strings.Trim(c.String("output"), " "),
 		})
 

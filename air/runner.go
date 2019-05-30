@@ -95,7 +95,7 @@ type annotatedError struct {
 	desc string
 }
 
-func processAllRegions(creds *credentials.Credentials, inspectorRegions []string) (results []regionResult, err error) {
+func processAllRegions(creds *credentials.Credentials, inspectorRegions []string, maxReportAge int) (results []regionResult, err error) {
 	GetRegionResults := func(ctx context.Context, regions []string) ([]regionResult, error) {
 		g, ctx := errgroup.WithContext(ctx)
 
@@ -110,7 +110,7 @@ func processAllRegions(creds *credentials.Credentials, inspectorRegions []string
 				sess, err = session.NewSession(&aws.Config{Credentials: creds, Region: &region})
 				var regionTemplateResults regionTemplateResults
 				svc := inspector.New(sess)
-				regionTemplateResults, err = getRegionTemplateResults(svc)
+				regionTemplateResults, err = getRegionTemplateResults(svc, maxReportAge)
 				rtr.regionTemplateResults = append(rtr.regionTemplateResults, regionTemplateResults...)
 				if err == nil {
 					perRegionResults[i] = rtr
@@ -204,7 +204,7 @@ func listFindingArns(svc inspectoriface.InspectorAPI, assRunArn *string) ([]*str
 	}
 }
 
-func getRegionTemplateResults(svc inspectoriface.InspectorAPI) (results regionTemplateResults, err error) {
+func getRegionTemplateResults(svc inspectoriface.InspectorAPI, maxReportAge int) (results regionTemplateResults, err error) {
 	// list assessment targets
 	var assTargetArns []*string
 	assTargetArns, err = getAssessmentTargetsArns(svc)
@@ -246,6 +246,15 @@ func getRegionTemplateResults(svc inspectoriface.InspectorAPI) (results regionTe
 		// loop through assessment runs and get the latest for each template
 		latestRunPerTemplate := make(map[string]assessmentRunToTime)
 		for _, ard := range assessmentRunsDetails {
+			// ignore any runs that are older than max report age
+			timeNow := time.Now()
+			timeSinceReportCompleted := timeNow.Sub(*ard.CompletedAt)
+			timeMaxReportAge := time.Duration(maxReportAge) * (24 * time.Hour)
+			if timeSinceReportCompleted > timeMaxReportAge {
+				//log.Printf("Ignoring report as time now is: %s, report completed at: %s and that's: %s duration and maxReportAge is: %s", time.Now(), *ard.CompletedAt,
+				//	timeSinceReportCompleted, timeMaxReportAge)
+				continue
+			}
 			if ard.CompletedAt != nil && (latestRunPerTemplate[*ard.AssessmentTemplateArn].time.IsZero() ||
 				latestRunPerTemplate[*ard.AssessmentTemplateArn].time.Before(*ard.StartedAt)) {
 				latestRunPerTemplate[*ard.AssessmentTemplateArn] = assessmentRunToTime{

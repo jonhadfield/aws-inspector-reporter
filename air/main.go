@@ -25,6 +25,8 @@ const (
 	targetsFileName = "targets.yml"
 	reportFileName  = "report.yml"
 	filtersFileName = "filters.yml"
+
+	DefaultMaxReportAge = 60
 )
 
 type AppConfig struct {
@@ -75,9 +77,9 @@ func Run(appConfig AppConfig) error {
 	var tems targetErrorsMaps
 	appConfig.load()
 	if len(appConfig.targets) > 0 {
-		accountsResults, tems, err = processMultipleAccounts(initialSess, appConfig.targets)
+		accountsResults, tems, err = processMultipleAccounts(initialSess, appConfig.targets, appConfig.MaxReportAge)
 	} else {
-		accountsResults, tems, err = processSingleAccount(initialSess)
+		accountsResults, tems, err = processSingleAccount(initialSess, appConfig.MaxReportAge)
 	}
 	clearConsoleLine()
 
@@ -121,7 +123,7 @@ func Run(appConfig AppConfig) error {
 	return err
 }
 
-func processMultipleAccounts(sess *session.Session, targets targets) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
+func processMultipleAccounts(sess *session.Session, targets targets, maxReportAge int) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
 	for _, target := range targets {
 		var tem targetErrorsMap
 		tem.target = target
@@ -164,7 +166,7 @@ func processMultipleAccounts(sess *session.Session, targets targets) (accountsRe
 		var perRegionResults []regionResult
 		inspectorRegions := getAllInspectorRegions()
 
-		perRegionResults, err = processAllRegions(creds, inspectorRegions)
+		perRegionResults, err = processAllRegions(creds, inspectorRegions, maxReportAge)
 		if err != nil {
 			aErr := annotatedError{
 				err:  err,
@@ -183,7 +185,7 @@ func processMultipleAccounts(sess *session.Session, targets targets) (accountsRe
 	return accountsResults, tems, err
 }
 
-func processSingleAccount(sess *session.Session) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
+func processSingleAccount(sess *session.Session, maxReportAge int) (accountsResults accountsResults, tems targetErrorsMaps, err error) {
 	inspectorRegions := getAllInspectorRegions()
 	var tem targetErrorsMap
 	svc := iam.New(sess)
@@ -215,7 +217,7 @@ func processSingleAccount(sess *session.Session) (accountsResults accountsResult
 		fmt.Print(statusOutput)
 	}
 
-	perRegionResults, err = processAllRegions(creds, inspectorRegions)
+	perRegionResults, err = processAllRegions(creds, inspectorRegions, maxReportAge)
 	if err != nil {
 		aErr := annotatedError{
 			err:  err,

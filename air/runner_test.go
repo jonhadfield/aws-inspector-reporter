@@ -36,7 +36,7 @@ func TestGetAssessmentTemplatesArnsComplete(t *testing.T) {
 
 func TestGetRegionTemplateResultsComplete(t *testing.T) {
 	m := &a.MockInspectorClient1{}
-	results, err := getRegionTemplateResults(m)
+	results, err := getRegionTemplateResults(m, 90)
 	assert.NoError(t, err)
 	assert.Len(t, results, 11)
 }
