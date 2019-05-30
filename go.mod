@@ -12,11 +12,11 @@ require (
 	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/snwfdhmp/errlog v0.0.0-20190419112242-156d20a3e777
 	github.com/spf13/afero v1.2.2 // indirect
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/urfave/cli v1.20.0
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092 // indirect
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20190528183647-3626398d7749 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

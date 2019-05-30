@@ -28,15 +28,16 @@ const (
 )
 
 type AppConfig struct {
-	Debug       bool
-	TargetsFile string
-	FiltersFile string
-	ReportFile  string
-	ConfigPath  string
-	filters     filters
-	targets     targets
-	report      Report
-	OutputDir   string
+	Debug        bool
+	TargetsFile  string
+	FiltersFile  string
+	ReportFile   string
+	ConfigPath   string
+	MaxReportAge int
+	filters      filters
+	targets      targets
+	report       Report
+	OutputDir    string
 }
 
 func (appConfig *AppConfig) load() {

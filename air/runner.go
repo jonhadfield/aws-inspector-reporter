@@ -1,7 +1,11 @@
 package air
 
 import (
+	"context"
+	"fmt"
+	"golang.org/x/sync/errgroup"
 	"log"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/inspector/inspectoriface"
@@ -91,23 +95,39 @@ type annotatedError struct {
 	desc string
 }
 
-func processAllRegions(creds *credentials.Credentials, inspectorRegions []string) (perRegionResults []regionResult, err error) {
-	for _, region := range inspectorRegions {
-		var rtr regionResult
-		rtr.region = region
-		var sess *session.Session
-		sess, err = session.NewSession(&aws.Config{Credentials: creds, Region: &region})
-		if err != nil {
-			return
+func processAllRegions(creds *credentials.Credentials, inspectorRegions []string) (results []regionResult, err error) {
+	GetRegionResults := func(ctx context.Context, regions []string) ([]regionResult, error) {
+		g, ctx := errgroup.WithContext(ctx)
+
+		perRegionResults := make([]regionResult, len(regions))
+		for i, region := range regions {
+			region := region
+			g.Go(func() error {
+				// TODO: catch errors
+				var rtr regionResult
+				rtr.region = region
+				var sess *session.Session
+				sess, err = session.NewSession(&aws.Config{Credentials: creds, Region: &region})
+				var regionTemplateResults regionTemplateResults
+				svc := inspector.New(sess)
+				regionTemplateResults, err = getRegionTemplateResults(svc)
+				rtr.regionTemplateResults = append(rtr.regionTemplateResults, regionTemplateResults...)
+				if err == nil {
+					perRegionResults[i] = rtr
+				}
+				return err
+			})
 		}
-		var regionTemplateResults regionTemplateResults
-		svc := inspector.New(sess)
-		regionTemplateResults, err = getRegionTemplateResults(svc)
-		if err != nil {
-			return
+		if err := g.Wait(); err != nil {
+			return nil, err
 		}
-		rtr.regionTemplateResults = append(rtr.regionTemplateResults, regionTemplateResults...)
-		perRegionResults = append(perRegionResults, rtr)
+		return perRegionResults, nil
+	}
+
+	results, err = GetRegionResults(context.Background(), inspectorRegions)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		return
 	}
 	return
 }
