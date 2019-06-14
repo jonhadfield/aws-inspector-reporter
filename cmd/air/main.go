@@ -58,10 +58,10 @@ func startCLI(args []string) (msg string, display bool, err error) {
 
 	app.Action = func(c *cli.Context) error {
 		_ = air2.Run(air2.AppConfig{
-			Debug:      c.Bool("debug"),
-			ConfigPath: c.String("config-path"),
+			Debug:        c.Bool("debug"),
+			ConfigPath:   c.String("config-path"),
 			MaxReportAge: c.Int("max-report-age"),
-			OutputDir:  strings.Trim(c.String("output"), " "),
+			OutputDir:    strings.Trim(c.String("output"), " "),
 		})
 
 		return nil

@@ -134,7 +134,7 @@ func processMultipleAccounts(sess *session.Session, targets targets, maxReportAg
 			shortAccountOutput = target.ID
 		}
 		statusOutput := fmt.Sprintf("Processing: [%s]...", shortAccountOutput)
-		statusOutput = padToWidth(statusOutput, " ", 0, true)
+		statusOutput = padToWidth(statusOutput, true)
 		width, _, _ := terminal.GetSize(0)
 		if len(statusOutput) == width {
 			fmt.Printf(statusOutput[0:width-3] + "   \r")
@@ -209,7 +209,7 @@ func processSingleAccount(sess *session.Session, maxReportAge int) (accountsResu
 	creds := credentials.NewStaticCredentials(sessCreds.AccessKeyID,
 		sessCreds.SecretAccessKey, sessCreds.SessionToken)
 	statusOutput := fmt.Sprintf("Processing: [%s]...", shortAccountOutput)
-	statusOutput = padToWidth(statusOutput, " ", 0, true)
+	statusOutput = padToWidth(statusOutput, true)
 	width, _, _ := terminal.GetSize(0)
 	if len(statusOutput) == width {
 		fmt.Printf(statusOutput[0:width-3] + "   \r")

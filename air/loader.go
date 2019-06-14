@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"os"
-	"strings"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func loadFilters(configPath string, debug bool) (filters filters) {
@@ -170,6 +172,9 @@ func loadTargets(configPath string, debug bool) (targets targets) {
 		sess := session.Must(session.NewSession())
 		var region string
 		region, err = s3manager.GetBucketRegion(context.Background(), sess, parts[0], "us-east-1")
+		if err != nil {
+			log.Fatal(err)
+		}
 		sess = session.Must(session.NewSession(&aws.Config{Region: ptrToStr(region)}))
 		svc := s3.New(sess)
 		input := &s3.GetObjectInput{

@@ -74,8 +74,9 @@ func getAssessmentTemplatesArns(svc inspectoriface.InspectorAPI, targetArns []*s
 	lato := &inspector.ListAssessmentTemplatesOutput{}
 	for {
 		lati := &inspector.ListAssessmentTemplatesInput{
-			MaxResults: ptrToInt64(10),
-			NextToken:  lato.NextToken,
+			AssessmentTargetArns: targetArns,
+			MaxResults:           ptrToInt64(10),
+			NextToken:            lato.NextToken,
 		}
 		lato, err = svc.ListAssessmentTemplates(lati)
 
@@ -101,6 +102,7 @@ func processAllRegions(creds *credentials.Credentials, inspectorRegions []string
 
 		perRegionResults := make([]regionResult, len(regions))
 		for i, region := range regions {
+			i := i
 			region := region
 			g.Go(func() error {
 				// TODO: catch errors
@@ -129,7 +131,7 @@ func processAllRegions(creds *credentials.Credentials, inspectorRegions []string
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		return
 	}
-	return
+	return results, err
 }
 
 func getLatestAssessmentTemplateRuns(svc inspectoriface.InspectorAPI, templateArns []*string) ([]*string, error) {

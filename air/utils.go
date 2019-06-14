@@ -30,8 +30,9 @@ func deleteFile(path string) (err error) {
 	err = os.Remove(path)
 	return
 }
-func padToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (output string) {
+func padToWidth(input string, trimToWidth bool) (output string) {
 	// Split string into lines
+	char := " "
 	var lines []string
 	var newLines []string
 	if strings.Contains(input, "\n") {
@@ -46,12 +47,7 @@ func padToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (
 			width = 80
 		}
 		// No padding for a line that already meets or exceeds console width
-		var length int
-		if inputLengthOverride > 0 {
-			length = inputLengthOverride
-		} else {
-			length = len(line)
-		}
+		length := len(line)
 
 		switch {
 		case length >= width:
@@ -62,11 +58,7 @@ func padToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (
 			}
 			return
 		case i == len(lines)-1:
-			if inputLengthOverride != 0 {
-				paddingSize = width - inputLengthOverride
-			} else {
-				paddingSize = width - len(line)
-			}
+			paddingSize = width - len(line)
 			if paddingSize >= 1 {
 				newLines = append(newLines, fmt.Sprintf("%s%s\r", line, strings.Repeat(char, paddingSize)))
 			} else {
@@ -81,7 +73,7 @@ func padToWidth(input, char string, inputLengthOverride int, trimToWidth bool) (
 	return strings.Join(newLines, "")
 }
 func outputError(err error) {
-	output := padToWidth(fmt.Sprintf("error: %v\n", err), " ", 0, false)
+	output := padToWidth(fmt.Sprintf("error: %v\n", err), false)
 	_, _ = fmt.Fprintf(os.Stderr, output)
 }
 
@@ -180,7 +172,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func clearConsoleLine() {
-	fmt.Printf("%s", padToWidth("", " ", 0, false))
+	fmt.Printf("%s", padToWidth("", false))
 }
 
 func ptrToInt64(in int64) *int64 {
@@ -204,7 +196,7 @@ func ptrToBool(in bool) *bool {
 }
 
 func ensureTrailingSlash(in string) string {
-	if ! strings.HasSuffix(in, string(os.PathSeparator)) {
+	if !strings.HasSuffix(in, string(os.PathSeparator)) {
 		return in + string(os.PathSeparator)
 	}
 	return in
