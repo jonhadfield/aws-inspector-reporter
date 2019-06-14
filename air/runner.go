@@ -159,7 +159,7 @@ func getLatestAssessmentTemplateRuns(svc inspectoriface.InspectorAPI, templateAr
 func getAssessmentRunDetails(svc inspectoriface.InspectorAPI, assessmentRunArns []*string) ([]*inspector.AssessmentRun, error) {
 	var assessmentRunDetails []*inspector.AssessmentRun
 	var err error
-	for i := 0; i <= len(assessmentRunArns); i += 10 {
+	for i := 0; i <= len(assessmentRunArns)-1; i += 10 {
 		var last int
 		if i+10 > len(assessmentRunArns) {
 			last = len(assessmentRunArns)
