@@ -143,7 +143,7 @@ func processMultipleAccounts(sess *session.Session, targets targets, maxReportAg
 		}
 
 		var creds *credentials.Credentials
-		creds, err = GetAssumeRoleCreds(GetAssumeRoleCredsInput{
+		creds, err = getAssumeRoleCreds(getAssumeRoleCredsInput{
 			Sess:       sess,
 			AccountID:  target.ID,
 			RoleName:   target.RoleName,

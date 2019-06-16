@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func GetAssumeRoleCreds(input GetAssumeRoleCredsInput) (creds *credentials.Credentials, err error) {
+func getAssumeRoleCreds(input getAssumeRoleCredsInput) (creds *credentials.Credentials, err error) {
 	var roleArn string
 	if input.RoleArn != "" {
 		roleArn = input.RoleArn
@@ -27,7 +27,7 @@ func GetAssumeRoleCreds(input GetAssumeRoleCredsInput) (creds *credentials.Crede
 	return
 }
 
-type GetAssumeRoleCredsInput struct {
+type getAssumeRoleCredsInput struct {
 	Sess       *session.Session
 	AccountID  string
 	RoleArn    string
