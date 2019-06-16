@@ -3,10 +3,11 @@ package air
 import (
 	"context"
 	"fmt"
-	"golang.org/x/sync/errgroup"
 	"log"
 	"os"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/aws/aws-sdk-go/service/inspector/inspectoriface"
 

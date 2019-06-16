@@ -1,9 +1,10 @@
 package main
 
 import (
-	air2 "github.com/jonhadfield/aws-inspector-reporter/air"
 	"os"
 	"strconv"
+
+	air2 "github.com/jonhadfield/aws-inspector-reporter/air"
 
 	"log"
 
