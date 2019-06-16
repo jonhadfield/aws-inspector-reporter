@@ -17,8 +17,8 @@ jobs:
       - run: echo "export BUILD_TAG=$(git describe --tags)" >> $BASH_ENV
       - run: echo "export BUILD_SHA=$(git rev-parse --short HEAD)" >> $BASH_ENV
       - run: echo "export BUILD_DATE=$(date -u '+%Y/%m/%d:%H:%M:%S')" >> $BASH_ENV
-      - run: gox -verbose -osarch="darwin/amd64 linux/amd64 linux/arm linux/arm64 windows/amd64 netbsd/amd64 openbsd/amd64 freebsd/amd64" -ldflags "-X main.tag=$BUILD_TAG -X main.sha=$BUILD_SHA -X main.buildDate=$BUILD_DATE" -output "dist/air_{{.OS}}_{{.Arch}}" "cmd/air/main.go"
-      - run: GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "main.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"' -o "dist/air_lambda" "lambda/air/main.go"
+      - run: gox -verbose -osarch="darwin/amd64 linux/amd64 linux/arm linux/arm64 windows/amd64 netbsd/amd64 openbsd/amd64 freebsd/amd64" -ldflags "-X main.tag=$BUILD_TAG -X main.sha=$BUILD_SHA -X main.buildDate=$BUILD_DATE" -output "dist/air_{{.OS}}_{{.Arch}}" ./cmd/air/main.go
+      - run: GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -ldflags '-s -w -X "main.version=[$(BUILD_TAG)-$(BUILD_SHA)] $(BUILD_DATE) UTC"' -o "dist/air_lambda" ./lambda/air/main.go
       - run: mv dist/air_lambda main && zip -j lambda_deployment.zip main && mv lambda_deployment.zip dist/
       - run:
           name: "Publish Release on GitHub"
