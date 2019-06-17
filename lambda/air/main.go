@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -12,7 +13,15 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+// overwritten at build time
+var version, tag, sha, buildDate string
+
 func Handler(cwe events.CloudWatchEvent) error {
+	if tag != "" && buildDate != "" {
+		fmt.Printf("version [%s-%s] %s UTC\n", tag, sha, buildDate)
+	} else {
+		fmt.Println("version", version)
+	}
 	log.Printf("Processing Lambda cwe: %s\n", cwe.Time)
 	var debug bool
 	if os.Getenv("AIR_DEBUG") != "" {
