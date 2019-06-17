@@ -8,7 +8,7 @@ By specifying filters it enables you to adjust severity of specific findings, or
 Generated reports can be automatically emailed using AWS SES (Simple Email Service).
 
 ## installation
-Download the latest release for your OS from here: https://github.com/jonhadfield/aws-inspector-reporter/releases
+Download the latest release for your OS from here: https://github.com/jonhadfield/aws-inspector-reporter/releases  
 For running on AWS Lambda see [here](docs/lambda.md).
 
 #### macOS and Linux
