@@ -3,13 +3,13 @@
 [![circleci][circleci-image]][circleci-url] [![Go Report Card][go-report-card-image]][go-report-card-url] 
 
 ## about
-AIR is a tool to retrieve the latest AWS Inspector findings (latest run of each template) from your AWS accounts and presents them in an auto-filtered Excel spreadsheet.  
+AIR is a tool to retrieve the latest AWS Inspector findings (latest run of each template) from your AWS accounts and presents them in an auto-filtered Excel spreadsheet.  It can run from the command-line or using AWS Lambda.  
 By specifying filters it enables you to adjust severity of specific findings, or ignore them and state the justification.  
 Generated reports can be automatically emailed using AWS SES (Simple Email Service).
- 
 
 ## installation
-Download the latest release here: https://github.com/jonhadfield/aws-inspector-reporter/releases
+Download the latest release for your OS from here: https://github.com/jonhadfield/aws-inspector-reporter/releases
+For running on AWS Lambda see [here](docs/lambda.md).
 
 #### macOS and Linux
   
@@ -77,7 +77,7 @@ To run against multiple accounts you need to:
 * provide sts:AssumeRole permissions to the user AIR is run with
 * create an IAM role in each target account with:
   * the policy 'AmazonInspectorReadOnlyAccess' attached
-  * a trust relationship allowing the provided AWS permissions to be used to assume the role (see [here](docs/TRUST.md) for examples)
+  * a trust relationship allowing the provided AWS permissions to be used to assume the role (see [here](docs/trust.md) for examples)
 
 directory called 'config' with a file called 'targets.yml' that specifies a list of target account roles:
 * id: the numeric account id
