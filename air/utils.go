@@ -14,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func getInstanceName(finding finding) string {
@@ -42,7 +42,7 @@ func padToWidth(input string, trimToWidth bool) (output string) {
 	}
 	var paddingSize int
 	for i, line := range lines {
-		width, _, _ := terminal.GetSize(0)
+		width, _, _ := term.GetSize(0)
 		if width == -1 {
 			width = 80
 		}
