@@ -1,6 +1,6 @@
 module github.com/jonhadfield/aws-inspector-reporter
 
-go 1.26.8
+go 1.26.0
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize/v2 v2.0.1-0.20190524014814-623375780586
