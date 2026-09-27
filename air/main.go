@@ -12,7 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"os"
 )
@@ -135,7 +135,7 @@ func processMultipleAccounts(sess *session.Session, targets targets, maxReportAg
 		}
 		statusOutput := fmt.Sprintf("Processing: [%s]...", shortAccountOutput)
 		statusOutput = padToWidth(statusOutput, true)
-		width, _, _ := terminal.GetSize(0)
+		width, _, _ := term.GetSize(0)
 		if len(statusOutput) == width {
 			fmt.Printf(statusOutput[0:width-3] + "   \r")
 		} else {
@@ -210,7 +210,7 @@ func processSingleAccount(sess *session.Session, maxReportAge int) (accountsResu
 		sessCreds.SecretAccessKey, sessCreds.SessionToken)
 	statusOutput := fmt.Sprintf("Processing: [%s]...", shortAccountOutput)
 	statusOutput = padToWidth(statusOutput, true)
-	width, _, _ := terminal.GetSize(0)
+	width, _, _ := term.GetSize(0)
 	if len(statusOutput) == width {
 		fmt.Printf(statusOutput[0:width-3] + "   \r")
 	} else {
